@@ -7,6 +7,7 @@
   .message-bubble {
     animation: slideIn 0.3s ease-out;
     position: relative;
+    word-wrap: break-word;
   }
 
   .message-bubble::before {
@@ -17,12 +18,12 @@
     right: 0;
     bottom: 0;
     border-radius: 1rem;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
     pointer-events: none;
   }
 
   .voice-button.active {
-    box-shadow: 0 0 15px rgba(99, 102, 241, 0.7), 0 0 30px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.8), 0 0 30px rgba(99, 102, 241, 0.4);
   }
 
   .send-button:hover {
@@ -65,7 +66,7 @@
     }
 
     .chat-header p {
-      font-size: 0.675rem;
+      font-size: 0.625rem;
     }
 
     .input-area input {
@@ -74,19 +75,19 @@
 
     .chat-messages {
       flex: 1;
-      height: calc(100vh - 120px - 80px);
+      height: calc(100vh - 100px - 80px);
       /* Adjust for header and input heights */
     }
   }
 </style>
 
 <div
-  class="chat-container w-full max-w-3xl mx-auto bg-gray-900/90 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-gray-700/50 sm:my-6 flex flex-col min-h-screen sm:min-h-0">
+  class="chat-container w-full max-w-4xl mx-auto bg-gray-900/95 backdrop-blur-2xl rounded-3xl shadow-2xl overflow-hidden border border-gray-700/60 sm:my-8 flex flex-col min-h-screen sm:min-h-0">
   <!-- Chat Header -->
   <div
-    class="chat-header bg-gradient-to-r from-indigo-700 via-purple-600 to-pink-500 p-3 sm:p-6 flex items-center justify-between">
+    class="chat-header bg-gradient-to-r from-indigo-800 via-purple-700 to-pink-600 p-3 sm:p-5 flex items-center justify-between">
     <div class="flex items-center space-x-2 sm:space-x-3">
-      <div class="w-8 h-8 sm:w-12 sm:h-12 bg-white/10 rounded-full flex items-center justify-center">
+      <div class="w-8 h-8 sm:w-12 sm:h-12 bg-white/15 rounded-full flex items-center justify-center">
         <svg class="w-4 h-4 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -95,8 +96,8 @@
         </svg>
       </div>
       <div>
-        <h1 class="text-base sm:text-xl font-bold text-white">Voice AI Assistant</h1>
-        <p class="text-[10px] sm:text-sm text-indigo-200">by Avyuktcore Technologies</p>
+        <h1 class="text-base sm:text-xl font-bold text-white tracking-tight">Voice AI Assistant</h1>
+        <p class="text-[10px] sm:text-sm text-indigo-200 font-light">by Avyuktcore Technologies</p>
       </div>
     </div>
     <span class="text-[10px] sm:text-xs text-indigo-100 animate-pulse">● <span class="text-white font-semibold">Voice
@@ -105,13 +106,13 @@
 
   <!-- Chat Messages -->
   <div
-    class="chat-messages flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gradient-to-b from-gray-900/80 to-gray-800/80"
+    class="chat-messages flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gradient-to-b from-gray-900/90 to-gray-800/90"
     #chatContainer>
     <div *ngFor="let message of messages" [ngClass]="message.isUser ? 'flex justify-end' : 'flex justify-start'">
       <div
-        class="message-bubble relative max-w-[70%] sm:max-w-md p-2 sm:p-4 rounded-xl shadow-lg transition-all duration-300"
-        [ngClass]="message.isUser ? 'bg-indigo-600 text-white' : 'bg-gray-700/80 text-gray-100'">
-        <p class="text-xs sm:text-base">{{ message.text }}</p>
+        class="message-bubble relative max-w-[70%] sm:max-w-lg p-2 sm:p-4 rounded-xl shadow-lg transition-all duration-300"
+        [ngClass]="message.isUser ? 'bg-indigo-600 text-white' : 'bg-gray-700/90 text-gray-100'">
+        <p class="text-xs sm:text-base leading-relaxed" [innerHTML]="message.text"></p>
         <div
           class="absolute -top-2 -right-2 w-4 h-4 sm:w-6 sm:h-6 bg-red-500 rounded-full flex items-center justify-center text-xs text-white"
           *ngIf="message.isUser">
@@ -128,12 +129,12 @@
   </div>
 
   <!-- Input Area -->
-  <div class="input-area p-3 sm:p-6 bg-gray-900/70 border-t border-gray-700/50">
+  <div class="input-area p-3 sm:p-5 bg-gray-900/80 border-t border-gray-700/60">
     <div class="flex items-center space-x-2 sm:space-x-4">
       <button (click)="toggleVoice()"
         class="voice-button p-2 sm:p-3 bg-indigo-600 rounded-full hover:bg-indigo-700 transition duration-300"
         [ngClass]="isListening ? 'active' : ''">
-        <svg class="w-4 h-4 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+        <svg class="w-4 h-4 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 /ta2"
           xmlns="http://www.w3.org/2000/svg" [ngClass]="isListening ? 'animate-pulse' : ''">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z">
@@ -141,7 +142,7 @@
         </svg>
       </button>
       <input [(ngModel)]="input" (keyup.enter)="sendMessage()" type="text" placeholder="Speak or type your message..."
-        class="flex-1 p-2 sm:p-3 bg-gray-800/80 text-white border border-gray-600/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 text-xs sm:text-base">
+        class="flex-1 p-2 sm:p-3 bg-gray-800/90 text-white border border-gray-600/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 text-xs sm:text-base placeholder-gray-400">
       <button (click)="sendMessage()"
         class="send-button p-2 sm:p-3 bg-indigo-600 rounded-lg hover:bg-indigo-700 transition duration-300">
         <svg class="w-4 h-4 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"

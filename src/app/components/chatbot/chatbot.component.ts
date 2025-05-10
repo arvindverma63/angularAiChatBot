@@ -1,12 +1,15 @@
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { Component, ViewChild, ElementRef, AfterViewChecked, Inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { HttpClientModule, HttpClient, HttpHeaders } from '@angular/common/http';
 import { isPlatformBrowser } from '@angular/common';
+import { Observable, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 
 @Component({
     selector: 'app-chatbot',
     templateUrl: './chatbot.component.html',
-    imports: [NgClass, NgFor, NgIf, FormsModule]
+    imports: [NgClass, NgFor, NgIf, FormsModule, HttpClientModule]
 })
 export class ChatbotAppComponent implements AfterViewChecked {
     messages: { text: string, isUser: boolean }[] = [
@@ -19,8 +22,12 @@ export class ChatbotAppComponent implements AfterViewChecked {
     @ViewChild('messagesEnd') private messagesEnd!: ElementRef;
 
     private recognition: any;
+    private apiUrl = 'https://chatbot.avblog.io/api/chat';
 
-    constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+    constructor(
+        @Inject(PLATFORM_ID) private platformId: Object,
+        private http: HttpClient
+    ) {
         this.initSpeechRecognition();
     }
 
@@ -69,17 +76,50 @@ export class ChatbotAppComponent implements AfterViewChecked {
     sendMessage() {
         if (this.input.trim() === '') return;
 
-        this.messages.push({ text: this.input, isUser: true });
+        // Format user message
+        const formattedUserMessage = this.formatMessage(this.input);
+        this.messages.push({ text: formattedUserMessage, isUser: true });
 
-        setTimeout(() => {
-            this.messages.push({
-                text: `I heard: "${this.input}". How can I assist you further?`,
-                isUser: false
-            });
-            this.scrollToBottom();
-        }, 500);
+        // Make API request
+        this.sendChatRequest(this.input).subscribe({
+            next: (response: any) => {
+                const botResponse = response.response || 'Sorry, I couldn’t process that. Please try again.';
+                // Format bot response
+                const formattedBotResponse = this.formatMessage(botResponse);
+                this.messages.push({ text: formattedBotResponse, isUser: false });
+                this.scrollToBottom();
+            },
+            error: (error) => {
+                console.error('API error:', error);
+                const errorMessage = 'Oops! Something went wrong. Please try again later.';
+                this.messages.push({ text: this.formatMessage(errorMessage), isUser: false });
+                this.scrollToBottom();
+            }
+        });
 
         this.input = '';
+    }
+
+    private formatMessage(message: string): string {
+        // Replace \n with <br> for HTML rendering
+        return message.replace(/\n/g, '<br>');
+    }
+
+    private sendChatRequest(message: string): Observable<any> {
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': 'application/json'
+        });
+
+        const body = { message: message };
+
+        return this.http.post(this.apiUrl, body, { headers }).pipe(
+            tap(response => response),
+            catchError(error => {
+                console.error('Error in API request:', error);
+                return throwError(() => new Error('Failed to fetch response from API'));
+            })
+        );
     }
 
     private scrollToBottom(): void {
